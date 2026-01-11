@@ -1,0 +1,13 @@
+africa-builder-directory/
+├── package.json
+├── index.html
+├── index.tsx
+├── App.tsx
+├── types.ts
+├── constants.tsx
+├── services/
+│   └── storage.ts
+├── components/
+│   ├── BuilderCard.tsx
+│   └── ProfileModal.tsx
+└── metadata.json
