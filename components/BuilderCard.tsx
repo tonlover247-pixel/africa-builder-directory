@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Builder, Ecosystem } from '../types';
 import { Icons } from '../constants';
 
@@ -11,81 +12,88 @@ interface Props {
 export const BuilderCard: React.FC<Props> = ({ builder, onClick }) => {
   const getEcosystemColor = (eco: Ecosystem) => {
     switch(eco) {
-      case Ecosystem.SOLANA: return 'bg-purple-100 text-purple-700 border-purple-200';
-      case Ecosystem.ETHEREUM: return 'bg-blue-100 text-blue-700 border-blue-200';
-      case Ecosystem.BITCOIN: return 'bg-orange-100 text-orange-700 border-orange-200';
-      default: return 'bg-slate-100 text-slate-700 border-slate-200';
+      case Ecosystem.SOLANA: return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+      case Ecosystem.ETHEREUM: return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case Ecosystem.BITCOIN: return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+      case Ecosystem.SUI: return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
+      case Ecosystem.BASE: return 'bg-blue-600/10 text-blue-400 border-blue-600/20';
+      default: return 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20';
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onClick(builder);
-    }
-  };
+  const twitterHandle = builder.twitter?.replace('@', '').trim();
+  
+  // Robust image sourcing:
+  // 1. Explicit avatarUrl
+  // 2. Unavatar for Twitter (X)
+  // 3. Clear UI Avatars as fallback
+  const avatarSrc = builder.avatarUrl && !builder.avatarUrl.includes('placeholder')
+    ? builder.avatarUrl 
+    : twitterHandle 
+      ? `https://unavatar.io/twitter/${twitterHandle}`
+      : `https://ui-avatars.com/api/?name=${encodeURIComponent(builder.name)}&background=f97316&color=fff&size=256&bold=true`;
 
   return (
-    <div 
-      role="button"
-      tabIndex={0}
+    <motion.div 
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -8 }}
       onClick={() => onClick(builder)}
-      onKeyDown={handleKeyDown}
-      aria-label={`View profile of ${builder.name}, ${builder.role} at ${builder.projectName}`}
-      className="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 cursor-pointer relative outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+      className="group bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/5 p-6 hover:border-orange-500/40 hover:shadow-[0_40px_80px_rgba(249,115,22,0.1)] transition-all duration-500 cursor-pointer relative"
     >
+      <div className="absolute -top-4 -right-4 w-20 h-20 bg-emerald-500/10 blur-[40px] rounded-full group-hover:bg-emerald-500/20 transition-all"></div>
+      
       {builder.featured && (
-        <div className="absolute -top-3 left-4 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full flex items-center gap-1 shadow-lg shadow-emerald-500/20">
+        <div className="absolute -top-3 left-6 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-[0.15em] px-4 py-2 rounded-full flex items-center gap-2 shadow-xl ring-4 ring-[#050505] z-10">
           <Icons.Star />
-          Spotlight
+          ELITE
         </div>
       )}
       
-      <div className="flex items-start gap-4 mb-4">
-        <img 
-          src={builder.avatarUrl} 
-          alt="" 
-          aria-hidden="true"
-          className="w-16 h-16 rounded-xl object-cover bg-slate-100 border border-slate-100 group-hover:scale-105 transition-transform"
-        />
+      <div className="flex items-center gap-5 mb-8">
+        <div className="relative">
+          <div className="w-20 h-20 rounded-2xl overflow-hidden bg-zinc-900 border-2 border-white/5 group-hover:scale-105 group-hover:rotate-2 transition-all duration-500">
+            <img 
+              src={avatarSrc} 
+              alt={builder.name} 
+              className="w-full h-full object-cover"
+              loading="lazy"
+              onError={(e) => {
+                // Final fallback if unavatar fails for a specific handle
+                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(builder.name)}&background=f97316&color=fff&size=256&bold=true`;
+              }}
+            />
+          </div>
+          <div className="absolute -bottom-1 -right-1 bg-emerald-500 w-4 h-4 rounded-full border-4 border-[#0a0a0a]"></div>
+        </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg text-slate-900 truncate group-hover:text-emerald-600 transition-colors">
+          <h3 className="font-black text-2xl text-white truncate group-hover:text-orange-500 transition-colors duration-300 tracking-tight">
             {builder.name}
           </h3>
-          <p className="text-slate-500 text-sm font-medium">{builder.role}</p>
-          <div className="flex items-center gap-1.5 text-slate-400 text-xs mt-1">
-            <Icons.MapPin />
-            {builder.city ? `${builder.city}, ` : ''}{builder.country}
-          </div>
+          <p className="text-orange-500 font-black text-[10px] uppercase tracking-[0.2em] mt-1">{builder.role}</p>
         </div>
       </div>
 
-      <div className="mb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Project</span>
-          <span className="h-[1px] flex-1 bg-slate-100"></span>
-        </div>
-        <p className="text-slate-700 font-semibold text-sm truncate">{builder.projectName}</p>
-        <p className="text-slate-500 text-xs line-clamp-2 mt-1 leading-relaxed">
-          {builder.bio}
+      <div className="mb-8">
+        <h4 className="text-zinc-300 font-black text-lg truncate flex items-center gap-2 mb-2">
+           {builder.projectName}
+        </h4>
+        <p className="text-zinc-500 text-sm line-clamp-2 leading-relaxed font-bold italic">
+          "{builder.bio}"
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2 mt-auto">
-        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border uppercase tracking-tight ${getEcosystemColor(builder.ecosystem)}`}>
+      <div className="flex flex-wrap gap-2 pt-6 border-t border-white/5">
+        <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black border uppercase tracking-[0.1em] ${getEcosystemColor(builder.ecosystem)}`}>
           {builder.ecosystem}
         </span>
         {builder.skills.slice(0, 2).map(skill => (
-          <span key={skill} className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-tight">
+          <span key={skill} className="px-4 py-1.5 rounded-xl text-[9px] font-black bg-zinc-900 text-zinc-500 border border-white/5 uppercase tracking-[0.1em]">
             {skill}
           </span>
         ))}
-        {builder.skills.length > 2 && (
-          <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-50 text-slate-400 border border-slate-100 uppercase tracking-tight">
-            +{builder.skills.length - 2}
-          </span>
-        )}
       </div>
-    </div>
+    </motion.div>
   );
 };

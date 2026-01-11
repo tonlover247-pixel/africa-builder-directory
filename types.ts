@@ -12,8 +12,16 @@ export enum Ecosystem {
   SOLANA = 'Solana',
   ETHEREUM = 'Ethereum',
   BITCOIN = 'Bitcoin',
+  SUI = 'Sui',
+  BASE = 'Base',
   MULTICHAIN = 'Multichain',
   OTHER = 'Other'
+}
+
+export enum SubscriptionTier {
+  FREE = 'FREE',
+  STARTER = 'STARTER',
+  PRO = 'PRO'
 }
 
 export interface Builder {
@@ -33,4 +41,18 @@ export interface Builder {
   featured: boolean;
   createdAt: string;
   avatarUrl?: string;
+  tier?: SubscriptionTier;
+}
+
+export interface Investor {
+  id: string;
+  name: string;
+  website: string;
+  checkSize: string;
+  checkSizeValue: number;
+  type: string;
+  sectors: string[];
+  stage: string[];
+  regions: string[];
+  isPremium?: boolean;
 }
